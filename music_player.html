@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify - Music Player</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+            color: #fff;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 20px 40px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1db954;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo::before {
+            content: "♪";
+            font-size: 32px;
+        }
+
+        .search-bar {
+            flex: 1;
+            max-width: 300px;
+            margin-left: 40px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            color: #fff;
+            outline: none;
+        }
+
+        .search-bar input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .search-bar input:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 300px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-y: auto;
+        }
+
+        .sidebar h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.7);
+            margin: 20px 0 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .playlist-item {
+            padding: 12px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .playlist-item:hover {
+            background: rgba(29, 185, 84, 0.2);
+            color: #1db954;
+        }
+
+        .playlist-item.active {
+            background: #1db954;
+            color: #000;
+            font-weight: 600;
+        }
+
+        /* Player Area */
+        .player-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 40px;
+        }
+
+        .now-playing-section {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 60px;
+            align-items: center;
+            flex: 1;
+        }
+
+        .album-art {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, #1db954, #1ed760);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 120px;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .song-info {
+            flex: 1;
+        }
+
+        .song-info h2 {
+            font-size: 48px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .song-info p {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 20px;
+        }
+
+        .artist-tags {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tag {
+            background: rgba(29, 185, 84, 0.2);
+            color: #1db954;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        /* Progress Bar */
+        .progress-section {
+            margin-bottom: 30px;
+        }
+
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 8px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #1db954;
+            border-radius: 3px;
+            width: 35%;
+            transition: width 0.1s linear;
+        }
+
+        .progress-bar:hover .progress-fill {
+            background: #1ed760;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+        }
+
+        .control-btn {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            font-size: 24px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+        }
+
+        .control-btn:hover {
+            color: #fff;
+            transform: scale(1.1);
+        }
+
+        .play-btn {
+            background: #1db954;
+            color: #000;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 28px;
+        }
+
+        .play-btn:hover {
+            background: #1ed760;
+            color: #000;
+        }
+
+        /* Queue/Playlist */
+        .queue-section {
+            margin-top: 40px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .queue-section h3 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #1db954;
+        }
+
+        .queue-item {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .queue-item:hover {
+            background: rgba(29, 185, 84, 0.2);
+            transform: translateX(5px);
+        }
+
+        .queue-item.playing {
+            background: rgba(29, 185, 84, 0.3);
+            border-left: 3px solid #1db954;
+            padding-left: 9px;
+        }
+
+        .queue-item-info {
+            flex: 1;
+        }
+
+        .queue-item-title {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .queue-item-artist {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .queue-item-duration {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(29, 185, 84, 0.5);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #1db954;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">Music Player</div>
+            <div class="search-bar">
+                <input type="text" placeholder="Search songs, artists...">
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <h3>Playlists</h3>
+                <div class="playlist-item active" onclick="selectPlaylist(this)">Now Playing</div>
+                <div class="playlist-item" onclick="selectPlaylist(this)">Favorites</div>
+                <div class="playlist-item" onclick="selectPlaylist(this)">Recently Played</div>
+                <div class="playlist-item" onclick="selectPlaylist(this)">Rock Classics</div>
+                <div class="playlist-item" onclick="selectPlaylist(this)">Chill Vibes</div>
+                <div class="playlist-item" onclick="selectPlaylist(this)">Party Mix</div>
+                <div class="playlist-item" onclick="selectPlaylist(this)">Workout Mix</div>
+
+                <h3>Genres</h3>
+                <div class="playlist-item" onclick="selectPlaylist(this)">Rock</div>
+                <div class="playlist-item" onclick="selectPlaylist(this)">Pop</div>
+                <div class="playlist-item" onclick="selectPlaylist(this)">Hip-Hop</div>
+                <div class="playlist-item" onclick="selectPlaylist(this)">Electronic</div>
+                <div class="playlist-item" onclick="selectPlaylist(this)">Jazz</div>
+            </div>
+
+            <!-- Player Area -->
+            <div class="player-area">
+                <div class="now-playing-section">
+                    <div class="album-art" id="albumArt">♪</div>
+                    <div class="song-info">
+                        <h2 id="songTitle">Midnight Dreams</h2>
+                        <p id="artistName">The Echoes</p>
+                        <div class="artist-tags">
+                            <span class="tag">Indie</span>
+                            <span class="tag">Pop</span>
+                            <span class="tag">2024</span>
+                        </div>
+                        <p style="color: rgba(255, 255, 255, 0.5); font-size: 14px;">
+                            An inspiring track about dreams and aspirations. Perfect for late night sessions.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Progress Section -->
+                <div class="progress-section">
+                    <div class="time-display">
+                        <span id="currentTime">1:23</span>
+                        <span id="totalTime">4:56</span>
+                    </div>
+                    <div class="progress-bar" onclick="seek(event)">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="controls">
+                    <button class="control-btn" title="Shuffle" onclick="toggleShuffle()">🔀</button>
+                    <button class="control-btn" title="Previous" onclick="previousTrack()">⏮</button>
+                    <button class="play-btn" id="playBtn" title="Play/Pause" onclick="togglePlay()">▶</button>
+                    <button class="control-btn" title="Next" onclick="nextTrack()">⏭</button>
+                    <button class="control-btn" title="Repeat" onclick="toggleRepeat()">🔁</button>
+                </div>
+
+                <!-- Queue -->
+                <div class="queue-section">
+                    <h3>Queue</h3>
+                    <div class="queue-item playing">
+                        <div class="queue-item-info">
+                            <div class="queue-item-title">Midnight Dreams</div>
+                            <div class="queue-item-artist">The Echoes</div>
+                        </div>
+                        <div class="queue-item-duration">4:56</div>
+                    </div>
+                    <div class="queue-item" onclick="playSong(this)">
+                        <div class="queue-item-info">
+                            <div class="queue-item-title">Neon Lights</div>
+                            <div class="queue-item-artist">Synthwave Dreams</div>
+                        </div>
+                        <div class="queue-item-duration">3:45</div>
+                    </div>
+                    <div class="queue-item" onclick="playSong(this)">
+                        <div class="queue-item-info">
+                            <div class="queue-item-title">Ocean Waves</div>
+                            <div class="queue-item-artist">Coastal Vibes</div>
+                        </div>
+                        <div class="queue-item-duration">5:12</div>
+                    </div>
+                    <div class="queue-item" onclick="playSong(this)">
+                        <div class="queue-item-info">
+                            <div class="queue-item-title">Urban Jungle</div>
+                            <div class="queue-item-artist">City Beats</div>
+                        </div>
+                        <div class="queue-item-duration">4:03</div>
+                    </div>
+                    <div class="queue-item" onclick="playSong(this)">
+                        <div class="queue-item-info">
+                            <div class="queue-item-title">Starlight</div>
+                            <div class="queue-item-artist">Night Sky</div>
+                        </div>
+                        <div class="queue-item-duration">3:28</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isPlaying = false;
+        let currentProgress = 35; // in percentage
+        let shuffle = false;
+        let repeat = 0; // 0: no repeat, 1: repeat all, 2: repeat one
+        const playBtn = document.getElementById('playBtn');
+        const progressFill = document.getElementById('progressFill');
+
+        function togglePlay() {
+            isPlaying = !isPlaying;
+            playBtn.textContent = isPlaying ? '⏸' : '▶';
+            playBtn.style.backgroundColor = isPlaying ? '#1ed760' : '#1db954';
+        }
+
+        function previousTrack() {
+            currentProgress = 0;
+            updateProgress();
+            console.log('Previous track');
+        }
+
+        function nextTrack() {
+            currentProgress = 0;
+            updateProgress();
+            console.log('Next track');
+        }
+
+        function toggleShuffle() {
+            shuffle = !shuffle;
+            event.target.style.color = shuffle ? '#1db954' : 'rgba(255, 255, 255, 0.7)';
+            event.target.style.opacity = shuffle ? '1' : '0.7';
+        }
+
+        function toggleRepeat() {
+            repeat = (repeat + 1) % 3;
+            const btn = event.target;
+            if (repeat === 0) {
+                btn.style.color = 'rgba(255, 255, 255, 0.7)';
+                btn.style.opacity = '0.7';
+            } else if (repeat === 1) {
+                btn.style.color = '#1db954';
+                btn.style.opacity = '1';
+            } else {
+                btn.style.color = '#1db954';
+                btn.style.opacity = '1';
+                btn.textContent = '🔂';
+            }
+        }
+
+        function updateProgress() {
+            progressFill.style.width = currentProgress + '%';
+            const totalSeconds = 296; // 4:56
+            const currentSeconds = Math.floor((currentProgress / 100) * totalSeconds);
+            const minutes = Math.floor(currentSeconds / 60);
+            const seconds = currentSeconds % 60;
+            document.getElementById('currentTime').textContent = 
+                `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function seek(event) {
+            const bar = event.currentTarget;
+            const rect = bar.getBoundingClientRect();
+            const percent = ((event.clientX - rect.left) / rect.width) * 100;
+            currentProgress = Math.max(0, Math.min(100, percent));
+            updateProgress();
+        }
+
+        function selectPlaylist(element) {
+            document.querySelectorAll('.playlist-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            element.classList.add('active');
+            console.log('Playlist selected:', element.textContent);
+        }
+
+        function playSong(element) {
+            document.querySelectorAll('.queue-item').forEach(item => {
+                item.classList.remove('playing');
+            });
+            element.classList.add('playing');
+            const title = element.querySelector('.queue-item-title').textContent;
+            const artist = element.querySelector('.queue-item-artist').textContent;
+            document.getElementById('songTitle').textContent = title;
+            document.getElementById('artistName').textContent = artist;
+            currentProgress = 0;
+            updateProgress();
+            if (!isPlaying) togglePlay();
+        }
+
+        // Auto-update progress bar (simulation)
+        setInterval(() => {
+            if (isPlaying && currentProgress < 100) {
+                currentProgress += 0.5;
+                updateProgress();
+            }
+        }, 500);
+    </script>
+</body>
+</html>
