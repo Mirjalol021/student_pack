@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iOS Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .calculator {
+            width: 100%;
+            max-width: 400px;
+            background: #000;
+            border-radius: 40px;
+            padding: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+        }
+
+        .display {
+            background: #000;
+            color: #fff;
+            font-size: 60px;
+            font-weight: 300;
+            text-align: right;
+            padding: 40px 20px;
+            border-radius: 20px;
+            word-wrap: break-word;
+            word-break: break-all;
+            min-height: 100px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: flex-end;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 25px;
+            font-size: 24px;
+            font-weight: 600;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        button:active {
+            transform: scale(0.95);
+            opacity: 0.8;
+        }
+
+        .operator {
+            background-color: #FF9500;
+            color: #fff;
+            grid-column: span 1;
+        }
+
+        .operator:hover {
+            background-color: #FFB143;
+        }
+
+        .operator:active {
+            background-color: #E68900;
+        }
+
+        .number {
+            background-color: #333333;
+            color: #fff;
+            grid-column: span 1;
+        }
+
+        .number:hover {
+            background-color: #555555;
+        }
+
+        .number:active {
+            background-color: #222222;
+        }
+
+        .equals {
+            background-color: #FF9500;
+            color: #fff;
+            grid-column: span 1;
+        }
+
+        .equals:hover {
+            background-color: #FFB143;
+        }
+
+        .equals:active {
+            background-color: #E68900;
+        }
+
+        .clear {
+            background-color: #FF9500;
+            color: #000;
+            grid-column: span 1;
+        }
+
+        .clear:hover {
+            background-color: #FFB143;
+        }
+
+        .clear:active {
+            background-color: #E68900;
+        }
+
+        .percent {
+            background-color: #FF9500;
+            color: #000;
+            grid-column: span 1;
+        }
+
+        .percent:hover {
+            background-color: #FFB143;
+        }
+
+        .percent:active {
+            background-color: #E68900;
+        }
+
+        .toggle-sign {
+            background-color: #FF9500;
+            color: #000;
+            grid-column: span 1;
+        }
+
+        .toggle-sign:hover {
+            background-color: #FFB143;
+        }
+
+        .toggle-sign:active {
+            background-color: #E68900;
+        }
+
+        .zero {
+            grid-column: span 2;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="display" id="display">0</div>
+        <div class="buttons">
+            <button class="clear" onclick="clearDisplay()">AC</button>
+            <button class="toggle-sign" onclick="toggleSign()">+/-</button>
+            <button class="percent" onclick="percentage()">%</button>
+            <button class="operator" onclick="setOperator('÷')">÷</button>
+
+            <button class="number" onclick="appendNumber('7')">7</button>
+            <button class="number" onclick="appendNumber('8')">8</button>
+            <button class="number" onclick="appendNumber('9')">9</button>
+            <button class="operator" onclick="setOperator('×')">×</button>
+
+            <button class="number" onclick="appendNumber('4')">4</button>
+            <button class="number" onclick="appendNumber('5')">5</button>
+            <button class="number" onclick="appendNumber('6')">6</button>
+            <button class="operator" onclick="setOperator('-')">-</button>
+
+            <button class="number" onclick="appendNumber('1')">1</button>
+            <button class="number" onclick="appendNumber('2')">2</button>
+            <button class="number" onclick="appendNumber('3')">3</button>
+            <button class="operator" onclick="setOperator('+')">+</button>
+
+            <button class="number zero" onclick="appendNumber('0')">0</button>
+            <button class="number" onclick="appendDecimal()">.</button>
+            <button class="equals" onclick="calculate()">=</button>
+        </div>
+    </div>
+
+    <script>
+        let display = document.getElementById('display');
+        let currentInput = '0';
+        let previousValue = null;
+        let operator = null;
+        let shouldResetDisplay = false;
+
+        function updateDisplay() {
+            display.textContent = currentInput;
+        }
+
+        function appendNumber(num) {
+            if (shouldResetDisplay) {
+                currentInput = num;
+                shouldResetDisplay = false;
+            } else {
+                if (currentInput === '0') {
+                    currentInput = num;
+                } else {
+                    currentInput += num;
+                }
+            }
+            updateDisplay();
+        }
+
+        function appendDecimal() {
+            if (shouldResetDisplay) {
+                currentInput = '0.';
+                shouldResetDisplay = false;
+            } else if (!currentInput.includes('.')) {
+                currentInput += '.';
+            }
+            updateDisplay();
+        }
+
+        function setOperator(op) {
+            previousValue = parseFloat(currentInput);
+            operator = op;
+            shouldResetDisplay = true;
+        }
+
+        function calculate() {
+            if (operator === null || previousValue === null) return;
+
+            const current = parseFloat(currentInput);
+            let result;
+
+            switch (operator) {
+                case '+':
+                    result = previousValue + current;
+                    break;
+                case '-':
+                    result = previousValue - current;
+                    break;
+                case '×':
+                    result = previousValue * current;
+                    break;
+                case '÷':
+                    if (current === 0) {
+                        currentInput = 'Error';
+                        updateDisplay();
+                        currentInput = '0';
+                        operator = null;
+                        previousValue = null;
+                        return;
+                    }
+                    result = previousValue / current;
+                    break;
+            }
+
+            currentInput = result === parseInt(result) ? parseInt(result).toString() : result.toString();
+            operator = null;
+            previousValue = null;
+            shouldResetDisplay = true;
+            updateDisplay();
+        }
+
+        function clearDisplay() {
+            currentInput = '0';
+            operator = null;
+            previousValue = null;
+            shouldResetDisplay = false;
+            updateDisplay();
+        }
+
+        function toggleSign() {
+            const value = parseFloat(currentInput);
+            currentInput = (-value).toString();
+            updateDisplay();
+        }
+
+        function percentage() {
+            const value = parseFloat(currentInput) / 100;
+            currentInput = value.toString();
+            updateDisplay();
+        }
+    </script>
+</body>
+</html>
